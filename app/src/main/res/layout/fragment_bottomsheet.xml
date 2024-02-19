@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:context=".presentation.screen.home.bottomsheet.`Bottom sheetFragment`">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnCamera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/take_pictures" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnGalleria"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/get_from_galleria" />
+
+
+</androidx.appcompat.widget.LinearLayoutCompat>

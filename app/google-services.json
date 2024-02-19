@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "173870796571",
+    "project_id": "testnine-ca6cf",
+    "storage_bucket": "testnine-ca6cf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:173870796571:android:af0607c1bd7af335a2cdbe",
+        "android_client_info": {
+          "package_name": "com.example.testnine"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcZTp3VICckZ5cb32c1SiEfITYpwDyX_M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
