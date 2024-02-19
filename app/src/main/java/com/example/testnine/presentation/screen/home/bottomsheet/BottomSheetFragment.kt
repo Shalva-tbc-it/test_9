@@ -1,10 +1,10 @@
 package com.example.testnine.presentation.screen.home.bottomsheet
 
-import android.Manifest
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log.d
@@ -14,21 +14,20 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toIcon
+import androidx.core.net.toFile
 import androidx.core.net.toUri
+import com.bumptech.glide.Glide
 import com.example.testnine.databinding.FragmentBottomsheetBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.storageMetadata
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.ByteArrayOutputStream
 
 @AndroidEntryPoint
 class BottomSheetFragment : BottomSheetDialogFragment() {
 
     private var _binding: FragmentBottomsheetBinding? = null
     private val binding get() = _binding!!
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,11 +37,9 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
         _binding = FragmentBottomsheetBinding.inflate(inflater, container, false)
         return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
-
 
         binding.btnCamera.setOnClickListener {
             takePicture()
@@ -55,16 +52,10 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             d("PhotoPicker", "Selected URI: $uri")
-            val storageRef = FirebaseStorage.getInstance().reference
+            getFromGalleriaImage(uri)
+            binding.image.setImageBitmap(getFromGalleriaImage(uri))
 
-            storageRef.putFile(uri)
-                .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Success upload", Toast.LENGTH_LONG).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_LONG).show()
-                    d("firebaseError", it.toString())
-                }
+
         } else {
             d("PhotoPicker", "No media selected")
         }
@@ -75,22 +66,34 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
                 d("PhotoPickerCamera", "$data")
-                val storageRef = FirebaseStorage.getInstance().reference
 
-                storageRef.putFile(data.toString().toUri())
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Success upload", Toast.LENGTH_LONG).show()
-                    }
-                    .addOnFailureListener {
-
-                        Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_LONG).show()
-                    }
+                val imageBitmap = data?.extras?.get("data") as Bitmap
+                getFromCameraBitmap(imageBitmap)
+                binding.image.setImageBitmap(getFromCameraBitmap(imageBitmap))
             }
         }
 
     private fun takePicture() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         takePictureLauncher.launch(takePictureIntent)
+    }
+
+    private fun getFromCameraBitmap(bitmap: Bitmap): Bitmap {
+        val getIntent = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, getIntent)
+        val stream = getIntent.toByteArray()
+        return BitmapFactory.decodeByteArray(stream, 0, stream.size)
+    }
+
+    private fun getFromGalleriaImage(uri: Uri): Bitmap? {
+        val getUri = requireContext().contentResolver.openInputStream(uri)
+        getUri?.use { input ->
+            val bitmap = BitmapFactory.decodeStream(input)
+            val stream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
+            return BitmapFactory.decodeStream(stream.toByteArray().inputStream())
+        }
+        return null
     }
 
     override fun onDestroyView() {
